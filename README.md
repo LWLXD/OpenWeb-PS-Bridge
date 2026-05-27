@@ -1,6 +1,7 @@
 # PS OpenWeb Bridge
 
 一个面向 Photoshop 的 UXP 面板插件，用普通 OpenWeb 用户 API Key 调用 OpenWeb 中可见的聊天型生图模型，并把结果自动贴回当前选区。
+只支持最新版的OpenWeb
 
 ## 当前能力
 
