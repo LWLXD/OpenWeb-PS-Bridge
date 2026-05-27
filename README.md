@@ -1,107 +1,176 @@
 # PS OpenWeb Bridge
 
-一个面向 Photoshop 的 UXP 面板插件，用普通 OpenWeb 用户 API Key 调用 OpenWeb 中可见的聊天型生图模型，并把结果自动贴回当前选区。
-只支持最新版的OpenWeb
+<div align="center">
 
-## 当前能力
+[![中文](https://img.shields.io/badge/README-%E4%B8%AD%E6%96%87-2ea44f?style=for-the-badge)](#中文)
+[![English](https://img.shields.io/badge/README-English-0969da?style=for-the-badge)](#english)
 
-- 支持手动填写 OpenWeb 地址，默认值为 `http://10.10.20.235:3000/`
-- 支持手动输入普通用户 `API Key`
-- 支持从 OpenWeb 的 `/api/models` 读取当前账号可见的模型
-- 插件会优先显示名称上看起来像生图模型的候选项
-- 支持把当前 Photoshop 选区导出为主参考图
-- 支持附加参考图
-  - 选择本地图片
-  - 在较新的 UXP 运行环境里尝试拖图到面板
-- 支持把参考图上传到 OpenWeb 文件接口，再通过聊天接口发起生成
-- 支持把结果图自动放回原选区位置
-- 支持三种贴回策略
-  - 填满选区并按选区裁切
-  - 严格拉伸到选区大小
-  - 保持比例并居中
-- 支持根据原选区创建图层蒙版
-- 支持设置羽化像素
-- 支持把 `API Key` 保存到 UXP Secure Storage
+</div>
 
-## 兼容目标
+## 中文
 
-- Windows 10 / 11
-- Photoshop 2021 到 Photoshop 2026
-- 推荐 Photoshop 至少更新到 `22.5` 或更高版本
+PS OpenWeb Bridge 是一个面向 Adobe Photoshop 的 UXP 面板插件，用于把 Photoshop 选区和参考图发送到 OpenWeb / Open WebUI，并把生成结果自动回贴到当前选区。
 
-## 目录结构
+> 兼容声明：本插件仅支持最新版 OpenWeb / Open WebUI。使用前请先将 OpenWeb 更新到最新版本。  
+> OpenWeb / Open WebUI 项目地址：[open-webui/open-webui](https://github.com/open-webui/open-webui)
 
-- `manifest.json`: UXP 插件清单
-- `index.html`: 面板 UI
-- `styles.css`: 面板样式
-- `main.js`: 插件入口
-- `src/app-controller.js`: UI 与业务协调
-- `src/openweb-client.js`: OpenWeb API 调用
-- `src/photoshop-workflow.js`: Photoshop 选区导出与结果回贴
-- `src/config-store.js`: 本地配置与安全存储
-- `icons/`: 面板图标
+### 当前能力
 
-## OpenWeb 端前提
+- 手动填写 OpenWeb 地址和普通用户 API Key。
+- 从 OpenWeb 读取当前账号可见模型，并优先显示看起来适合生图的模型。
+- 优先使用新版 OpenWeb 图片接口：
+  - `/api/v1/images/generations`
+  - `/api/v1/images/edit`
+- 保留 `/api/chat/completions` 聊天接口兜底兼容。
+- 将当前 Photoshop 选区导出为参考图。
+- 支持添加本地参考图。
+- 下载 OpenWeb 返回的生成图，并自动放回原选区位置。
+- 支持三种回贴策略：填满、严格拉伸、保持比例。
+- 可基于原选区创建图层蒙版。
+- 支持羽化像素设置。
+- 支持将 API Key 保存到 UXP Secure Storage。
+- 调试文件会写入插件数据目录，便于排查选区图和结果图。
 
-1. 在 OpenWeb 中启用 API Key 功能。
-2. 让插件使用者登录自己的 OpenWeb 账号。
-3. 由该用户在个人设置里生成自己的 `API Key`。
-4. 确保该用户本身在 OpenWeb 里能看到并使用目标生图模型。
-5. 确保运行 Photoshop 的电脑可以访问 `http://10.10.20.235:3000/`。
+### 兼容目标
 
-## 安装方式
+- Windows 10 / 11。
+- Photoshop 2021 到 Photoshop 2026。
+- Photoshop UXP API 版本不低于 `22.5`。
+- 仅支持最新版 OpenWeb / Open WebUI。
 
-### 开发装载
+### OpenWeb 前置要求
 
-1. 安装 `Adobe UXP Developer Tool`
-2. 打开 UXP Developer Tool
-3. 选择 `Add Plugin`
-4. 指向当前目录
-5. 在 Photoshop 中打开面板 `Plugins > PS OpenWeb Bridge > OpenWeb Image`
+1. 部署并更新到最新版 OpenWeb / Open WebUI。
+2. 启用 API Key 功能。
+3. 让插件使用者登录自己的 OpenWeb 账号。
+4. 在个人设置中生成普通用户 API Key。
+5. 确保该用户在 OpenWeb 中有图片生成功能权限。
+6. 确保 OpenWeb 后台已经正确配置图片生成或图片编辑引擎。
+7. 确保运行 Photoshop 的电脑可以访问 OpenWeb 地址。
 
-### 分发安装
+### 安装方式
 
-当前目录已经是可直接加载的完整插件源码目录，适合：
+开发加载：
 
-- UXP Developer Tool 加载
-- 后续在有 UXP 打包环境的机器上打成 `.ccx`
-- 直接分发源码压缩包给同事加载
+1. 安装 Adobe UXP Developer Tool。
+2. 打开 UXP Developer Tool。
+3. 选择 `Add Plugin`。
+4. 指向当前项目目录。
+5. 在 Photoshop 中打开 `Plugins > PS OpenWeb Bridge > OpenWeb Image`。
 
-项目里也提供了一个源码打包脚本：
+分发安装：
 
-- `scripts/build-zip.ps1`
+- 使用 `dist/PS-OpenWeb-Bridge-1.0.2.ccx` 安装。
+- 或使用 `dist/PS-OpenWeb-Bridge-1.0.2.zip` 分发源码包。
 
-运行后会生成 `dist/PS-OpenWeb-Bridge-1.0.0.zip`
+### 打包
 
-## 使用流程
+```powershell
+.\scripts\build-zip.ps1
+.\scripts\build-ccx.ps1
+```
+
+打包结果会输出到 `dist/`。
+
+### 使用流程
 
 1. 在 Photoshop 中打开一个文档。
-2. 创建一个有效选区。
-3. 在面板中填写 OpenWeb 地址和普通用户 API Key。
-4. 点击 `测试连接`，确认模型可以正常读取。
+2. 创建有效选区。
+3. 在插件面板中填写 OpenWeb 地址和 API Key。
+4. 点击测试连接或刷新模型。
 5. 选择模型。
-6. 填写 Prompt。
-7. 如需附加参考图，选择图片或拖图到面板。
-8. 点击 `生成并替换到选区`。
-9. 插件会自动：
-   - 导出当前选区
-   - 上传参考图到 OpenWeb
-   - 通过聊天接口发起生成
-   - 下载结果
-   - 回贴到原选区位置
-   - 按选项创建蒙版和羽化
+6. 输入 Prompt。
+7. 按需启用当前选区参考图，或添加额外参考图。
+8. 点击生成按钮。
+9. 插件会自动导出选区、请求 OpenWeb、下载生成图，并回贴到选区位置。
 
-## 已知说明
+### 已知说明
 
-- 面板拖拽在旧版 Photoshop / UXP 上可能不稳定，所以保留了“选择图片”按钮作为兼容后备。
-- 图层蒙版创建使用 Action / BatchPlay，依赖 Photoshop 当前选区状态。
-- 羽化会作用到当前选区后再创建蒙版，因此执行完成后，当前选区边缘可能与执行前不同。
-- 具体是否能成功生图，仍取决于 OpenWeb 当前账号可见模型是否真的支持聊天型生图返回。
+- 带参考图时，插件会优先使用 OpenWeb 的图片编辑接口；具体编辑模型取决于 OpenWeb 后台配置。
+- 纯文本生图会优先使用 OpenWeb 的图片生成接口。
+- 如果新版图片接口不可用，插件会尝试聊天接口兜底。
+- 结果是否能生成，仍取决于 OpenWeb 当前账号权限、模型能力和后端图片引擎配置。
 
-## 后续可继续增强
+## English
 
-- 选区蒙版状态保存与恢复
-- 多结果缩略图选择
-- 历史 Prompt 预设
-- 更精细的聊天结果解析
-- 更明确的模型能力诊断
+PS OpenWeb Bridge is an Adobe Photoshop UXP panel plugin that sends the current Photoshop selection and optional reference images to OpenWeb / Open WebUI, then places the generated image back into the original selection.
+
+> Compatibility notice: this plugin supports only the latest OpenWeb / Open WebUI release. Please update OpenWeb before using it.  
+> OpenWeb / Open WebUI project: [open-webui/open-webui](https://github.com/open-webui/open-webui)
+
+### Features
+
+- Manually configure the OpenWeb URL and a normal user API key.
+- Load models visible to the current OpenWeb account, prioritizing likely image-capable models.
+- Prefer the latest OpenWeb image endpoints:
+  - `/api/v1/images/generations`
+  - `/api/v1/images/edit`
+- Keep `/api/chat/completions` as a compatibility fallback.
+- Export the active Photoshop selection as a reference image.
+- Add local reference images.
+- Download the generated image from OpenWeb and place it back into the original selection.
+- Support three placement modes: cover, stretch, and contain.
+- Optionally create a layer mask from the original selection.
+- Support feathering settings.
+- Store the API key in UXP Secure Storage.
+- Save debug files in the plugin data directory for easier troubleshooting.
+
+### Compatibility
+
+- Windows 10 / 11.
+- Photoshop 2021 through Photoshop 2026.
+- Photoshop UXP API version `22.5` or newer.
+- Latest OpenWeb / Open WebUI only.
+
+### OpenWeb Requirements
+
+1. Deploy and update to the latest OpenWeb / Open WebUI release.
+2. Enable API key support.
+3. Ask each plugin user to log in with their own OpenWeb account.
+4. Generate a normal user API key from personal settings.
+5. Make sure the user has permission to use image generation.
+6. Make sure the OpenWeb image generation or image editing backend is configured correctly.
+7. Make sure the Photoshop machine can reach the OpenWeb URL.
+
+### Installation
+
+Development loading:
+
+1. Install Adobe UXP Developer Tool.
+2. Open UXP Developer Tool.
+3. Select `Add Plugin`.
+4. Point it to this project directory.
+5. In Photoshop, open `Plugins > PS OpenWeb Bridge > OpenWeb Image`.
+
+Distribution:
+
+- Install with `dist/PS-OpenWeb-Bridge-1.0.2.ccx`.
+- Or distribute `dist/PS-OpenWeb-Bridge-1.0.2.zip` as the source package.
+
+### Build
+
+```powershell
+.\scripts\build-zip.ps1
+.\scripts\build-ccx.ps1
+```
+
+Build artifacts are written to `dist/`.
+
+### Usage
+
+1. Open a document in Photoshop.
+2. Create a valid selection.
+3. Enter the OpenWeb URL and API key in the plugin panel.
+4. Test the connection or refresh the model list.
+5. Select a model.
+6. Enter a prompt.
+7. Enable the current selection as a reference image, or add extra reference images if needed.
+8. Click the generate button.
+9. The plugin exports the selection, calls OpenWeb, downloads the result, and places it back into the selected area.
+
+### Notes
+
+- With reference images, the plugin prefers OpenWeb's image edit endpoint; the actual edit model depends on the OpenWeb backend configuration.
+- Prompt-only generation prefers OpenWeb's image generation endpoint.
+- If the latest image API is unavailable, the plugin attempts the chat-completions fallback.
+- Successful generation still depends on OpenWeb user permissions, model capability, and image backend configuration.
