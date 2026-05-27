@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PS OpenWeb Bridge</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ow-root">
+      <header class="hero-card">
+        <p class="hero-tag">Photoshop x OpenWebUI</p>
+        <h1 class="hero-title">OpenWeb 图像桥接</h1>
+        <p class="hero-note">
+          用普通 OpenWeb 用户 API Key 调用聊天型生图模型，并把结果自动贴回当前选区。
+        </p>
+      </header>
+
+      <section class="panel-card">
+        <button class="section-toggle" data-target="connection-body" type="button">
+          <span class="section-title">连接设置</span>
+          <span class="section-caret">▼</span>
+        </button>
+        <div id="connection-body" class="card-body">
+          <label class="field">
+            <span class="field-label">OpenWeb 地址</span>
+            <sp-textfield
+              id="server-url"
+              class="uxp-textfield"
+              placeholder="http://10.10.20.235:3000/"
+            ></sp-textfield>
+          </label>
+
+          <label class="field">
+            <span class="field-label">API Key</span>
+            <sp-textfield
+              id="api-key"
+              class="uxp-textfield"
+              type="password"
+              placeholder="普通用户 API Key"
+            ></sp-textfield>
+          </label>
+
+          <label class="field">
+            <span class="field-label">模型</span>
+            <select id="model-select">
+              <option value="">请先测试连接</option>
+            </select>
+          </label>
+
+          <div class="button-stack">
+            <button id="test-connection" class="btn btn-primary" type="button">测试连接</button>
+            <button id="refresh-models" class="btn btn-secondary" type="button">刷新模型</button>
+            <button id="run-diagnostics" class="btn btn-secondary" type="button">网络自检</button>
+          </div>
+
+          <div id="connection-status" class="mini-status">
+            填写地址和普通用户 API Key 后，点击“测试连接”。
+          </div>
+          <div id="connection-diagnostics" class="mini-status diagnostic-status" hidden></div>
+        </div>
+      </section>
+
+      <section class="panel-card">
+        <button class="section-toggle" data-target="refs-body" type="button">
+          <span class="section-title">参考图</span>
+          <span class="section-caret">▼</span>
+        </button>
+        <div id="refs-body" class="card-body">
+          <p class="section-hint">可以用当前选区作为主参考图，也可以额外拖拽或选择图片。</p>
+
+          <label class="checkbox">
+            <input id="use-selection-ref" type="checkbox" checked />
+            <span>使用当前 Photoshop 选区作为主参考图</span>
+          </label>
+
+          <div id="drop-zone" class="drop-zone" tabindex="0">
+            <p class="drop-title">将图片拖到这里作为附加参考图</p>
+            <p class="drop-note">如果拖拽不可用，请使用下面的“选择图片”。</p>
+            <button id="pick-refs" class="btn btn-primary btn-small" type="button">选择图片</button>
+          </div>
+
+          <div class="button-stack">
+            <button id="clear-refs" class="btn btn-secondary" type="button">清空附加参考图</button>
+          </div>
+
+          <div id="ref-list" class="ref-list empty">
+            <p class="empty-state">当前没有附加参考图</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-card">
+        <button class="section-toggle" data-target="generate-body" type="button">
+          <span class="section-title">生成设置</span>
+          <span class="section-caret">▼</span>
+        </button>
+        <div id="generate-body" class="card-body">
+          <p class="section-hint">输入提示词，并设置贴回方式和蒙版处理。</p>
+
+          <label class="field">
+            <span class="field-label">Prompt</span>
+            <textarea id="prompt" rows="6" placeholder="描述你想生成的内容"></textarea>
+          </label>
+
+          <label class="field">
+            <span class="field-label">贴回策略</span>
+            <select id="placement-mode">
+              <option value="cover">填满选区并按选区裁切</option>
+              <option value="stretch">严格拉伸到选区大小</option>
+              <option value="contain">保持比例并居中</option>
+            </select>
+          </label>
+
+          <div class="feather-row">
+            <label class="field field-small feather-field">
+              <span class="field-label">羽化(px)</span>
+              <input id="feather-px" type="number" min="0" max="1000" step="1" value="0" />
+            </label>
+            <span class="field-note-inline">默认推荐15-30</span>
+          </div>
+
+          <label class="checkbox checkbox-note-tone">
+            <input id="apply-selection-mask" type="checkbox" checked />
+            <span class="checkbox-note-text">贴回后按原选区创建图层蒙版</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel-card action-card">
+        <div class="card-body">
+          <button id="generate" class="btn btn-primary btn-large" type="button">生成并替换到选区</button>
+          <p class="action-note">运行前请先在 Photoshop 中创建一个有效选区。</p>
+        </div>
+      </section>
+
+      <section class="panel-card">
+        <button class="section-toggle" data-target="status-body" type="button">
+          <span class="section-title">状态</span>
+          <span class="section-caret">▼</span>
+        </button>
+        <div id="status-body" class="card-body">
+          <div class="status-toolbar">
+            <button id="cancel-generate" class="btn btn-cancel" type="button" disabled>取消生图</button>
+          </div>
+          <p class="section-hint">连接结果、生成进度和错误信息会显示在这里。</p>
+          <div id="status" class="status status-info">等待操作</div>
+        </div>
+      </section>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

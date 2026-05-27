@@ -1,0 +1,7 @@
+ow-*.tmp.*
+images-router.tmp.py
+/PS-OpenWeb-Bridge-*.zip
+/dist/PS-OpenWeb-Bridge-*.zip
+/dist/PS-OpenWeb-Bridge-*.ccx
+!/dist/PS-OpenWeb-Bridge-1.0.2.zip
+!/dist/PS-OpenWeb-Bridge-1.0.2.ccx

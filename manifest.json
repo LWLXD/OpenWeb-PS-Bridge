@@ -1,0 +1,109 @@
+{
+  "manifestVersion": 4,
+  "id": "com.codex.ps-openweb-bridge",
+  "name": "PS OpenWeb Bridge",
+  "version": "1.0.2",
+  "main": "index.html",
+  "permissions": {
+    "network": {
+      "domains": "all"
+    }
+  },
+  "host": {
+    "app": "PS",
+    "minVersion": "22.5",
+    "data": {
+      "apiVersion": 2,
+      "loadEvent": "use"
+    }
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "ps-openweb-panel",
+      "label": {
+        "default": "OpenWeb Image"
+      },
+      "minimumSize": {
+        "width": 340,
+        "height": 520
+      },
+      "maximumSize": {
+        "width": 2000,
+        "height": 2000
+      },
+      "preferredDockedSize": {
+        "width": 360,
+        "height": 720
+      },
+      "preferredFloatingSize": {
+        "width": 380,
+        "height": 760
+      },
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/panel-dark.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "dark",
+            "darkest",
+            "medium"
+          ]
+        },
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/panel-light.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "light",
+            "lightest"
+          ]
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "width": 24,
+      "height": 24,
+      "path": "icons/plugin-dark.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "dark",
+        "darkest",
+        "medium"
+      ],
+      "species": [
+        "generic"
+      ]
+    },
+    {
+      "width": 24,
+      "height": 24,
+      "path": "icons/plugin-light.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "light",
+        "lightest"
+      ],
+      "species": [
+        "generic"
+      ]
+    }
+  ]
+}
